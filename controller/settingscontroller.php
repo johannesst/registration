@@ -45,12 +45,16 @@ class SettingsController extends Controller {
 	 * @param string $allowed_domains Registrations are only allowed for E-Mailadresses with these domains
 	 * @return DataResponse
 	 */
-	public function admin($registered_user_group, $allowed_domains) {
+	public function admin($registered_user_group, $allowed_domains, $needs_activiation) {
 		if ( ( $allowed_domains==='' ) || ( $allowed_domains === NULL ) ){
 			$this->config->deleteAppValue($this->appName, 'allowed_domains');
 		}else{
 			$this->config->setAppValue($this->appName, 'allowed_domains', $allowed_domains);
 		}
+		if ( ( $needs_activiation === '' ) || ( $needs_activiation === NULL )) {
+			$this->config->deleteAppValue($this->appName, 'needs_activiation');
+		}
+
 		$groups = $this->groupmanager->search('');
 		foreach ( $groups as $group ) {
 			$group_id_list[] = $group->getGid();
@@ -90,10 +94,12 @@ class SettingsController extends Controller {
 		// TODO selected
 		$current_value = $this->config->getAppValue($this->appName, 'registered_user_group', 'none');
 		$allowed_domains = $this->config->getAppValue($this->appName, 'allowed_domains', '');
+		$needs_activiation = $this->config->getAppValue($this->appName, 'needs_activiation', 'false')
 		return new TemplateResponse('registration', 'admin', [
 			'groups' => $group_id_list,
 			'current' => $current_value,
-			'allowed' => $allowed_domains
+			'allowed' => $allowed_domains,
+			'needs_activiation' => $needs_activiation
 		], '');
 	}
 }
