@@ -97,7 +97,7 @@ class SettingsController extends Controller {
 		// TODO selected
 		$current_value = $this->config->getAppValue($this->appName, 'registered_user_group', 'none');
 		$allowed_domains = $this->config->getAppValue($this->appName, 'allowed_domains', '');
-		$needs_actviation = $this->config->getAppValue($this->appName, 'needs_activation', '');
+		$needs_activation = $this->config->getAppValue($this->appName, 'needs_activation', '');
 		return new TemplateResponse('registration', 'admin', [
 			'groups' => $group_id_list,
 			'current' => $current_value,
