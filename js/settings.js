@@ -1,10 +1,11 @@
 $(document).ready(function() {
 	function saveSettings() {
 		var post = $('#registration').serialize();
+		console.log($('needs_activation');
 		$.post(OC.generateUrl('/apps/registration/settings'), post);
 	}
 
 	$('#registered_user_group').change(saveSettings);
 	$('#allowed_domains').change(saveSettings);
-	$('needs_activiation').change(saveSettings);
+	$('needs_activation').change(saveSettings);
 });
