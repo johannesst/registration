@@ -26,6 +26,20 @@
 	text-decoration: underline;
 }
 
+#registration ul {
+	list-style: disc;
+}
+
+#registration .indent {
+	padding-left:28px;
+}
+
+#allowed_domains {
+	margin-left:10px;
+	width:200px;
+}
+
 .groupofone {
 	position: relative;
 }
+

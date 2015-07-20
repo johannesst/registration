@@ -1,5 +1,6 @@
 <?php
 script('registration', 'settings');
+\OCP\Util::addStyle('registration', 'style');
 ?>
 <form id="registration" class="section">
 	<h2><?php p($l->t('Registration')); ?></h2>
@@ -16,12 +17,16 @@ foreach ( $_['groups'] as $group ) {
 	</select>
 	</p>
 	<p>
-	<label for="allowed_domains"><?php p($l->t('Allowed domains for registration')); ?></br>
-	<?php p($l->t('Enter a semicolon-seperated list of allowed domains. Example: owncloud.com;github.com'));?> 
+	<label for="allowed_domains"><?php p($l->t('Allowed domains for registration')); ?>
 	</label>
-	<p> 
-	<input type="text" id="allowed_domains" name="allowed_domains" value=<?php p($_['allowed']);?>>
+	<input class="input-margin " type="text" id="allowed_domains" name="allowed_domains" value=<?php p($_['allowed']);?>>
 	</p>
+<ul class="indent "><li>
+	 <?php p($l->t('Enter a semicolon-seperated list of allowed domains.'))?>
+</li><li>
+	<?php p($l->t('Example: owncloud.com;github.com'));?> 
+</li>
+</ul>
 	<p> 
 		<label for="needs_activation"><?php p($l->t('Registered accounts needs activation by Administrator')); ?></label>
 		<input type="checkbox" id="needs_activation" name="needs_activation" value="checked" <?php p($_['needs_activation']); ?>>
