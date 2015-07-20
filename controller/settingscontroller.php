@@ -52,10 +52,10 @@ class SettingsController extends Controller {
 		}else{
 			$this->config->setAppValue($this->appName, 'allowed_domains', $allowed_domains);
 		}
-		if ( ( $needs_activiation === '' ) || ( $needs_activiation === NULL )) {
+		if ( ( $needs_activation === '' ) || ( $needs_activation === NULL )) {
 			$this->config->deleteAppValue($this->appName, 'needs_activation');
 		}else{
-			$this->config->setAppValue($this->appName, 'needs_activation', $allowed_domains);
+			$this->config->setAppValue($this->appName, 'needs_activation', $needs_activation);
 		}
 
 		$groups = $this->groupmanager->search('');
