@@ -6,4 +6,5 @@ $(document).ready(function() {
 
 	$('#registered_user_group').change(saveSettings);
 	$('#allowed_domains').change(saveSettings);
+	$('needs_activiation').change(saveSettings);
 });
