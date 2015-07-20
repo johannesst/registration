@@ -23,7 +23,7 @@ foreach ( $_['groups'] as $group ) {
 	<input type="text" id="allowed_domains" name="allowed_domains" value=<?php p($_['allowed']);?>>
 	</p>
 	<p> 
-		<label for="needs_activation"><?php p($l->t('Registration needs Activation by Administrator')); ?></label>
+		<label for="needs_activation"><?php p($l->t('Registered accounts needs activation by Administrator')); ?></label>
 		<input type="checkbox" id="needs_activation" name="needs_activation" value="checked" <?php p($_['needs_activation']); ?>>
 	</p>
 

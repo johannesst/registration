@@ -19,6 +19,7 @@ OC.L10N.register(
     "None" : "Keine",
     "Allowed domains for registration" : "Für Registrierung freigeschaltete Domains",
     "Registration is only allowed for following domains:" : "Registrierung ist nur für folgende Domains freigeschaltet:",
+    "Registered accounts needs activation" : "Registrierte Konten müssen durch Admin freigeschaltet werden",
     "Save" : "Speichern",
     "Welcome, you can create your account below." : "Willkommen, Du kannst im unteren Teil Dein Konto anlegen.",
     "Username" : "Benutzername",
