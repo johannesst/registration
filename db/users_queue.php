@@ -19,35 +19,35 @@ class UsersQueue {
 	}
 
 	public function save($email,$username,$password) {
-		$query = $this->db->prepareQuery( 'INSERT INTO `*PREFIX*users_queue`'
+		$query = $this->db->prepareQuery( 'INSERT INTO `*PREFIX*usersqueue`'
 			.' ( `email`, `username`, `password`, `activated`, `banned`,`token`,  `requested` ) VALUES( ?, ?,?, FALSE,FALSE, ?, NOW() )' );
 		$token = $this->random->generate(30);
 		$query->execute(array( $email, $username,$password,$token ));
 		return $token;
 	}
 	public function find($email) {
-		$query = $this->db->prepareQuery('SELECT `email`,`username`,`password`,`activated` FROM `*PREFIX*users_queue` WHERE `email` = ? ');
+		$query = $this->db->prepareQuery('SELECT `email`,`username`,`password`,`activated` FROM `*PREFIX*usersqueue` WHERE `email` = ? ');
 		return $query->execute(array($email))->fetchAll();
 	}
 
 	public function delete($email) {
-		$query = $this->db->prepareQuery('DELETE FROM `*PREFIX*users_queue` WHERE `email` = ? ');
+		$query = $this->db->prepareQuery('DELETE FROM `*PREFIX*usersqueue` WHERE `email` = ? ');
 		return $query->execute(array($email));
 	}
 
 	public function activate($email) {
-		$query = $this->db->prepareQuery('UPDATE `*PREFIX*users_queue` SET `activated`=TRUE where `email` = ? ');
+		$query = $this->db->prepareQuery('UPDATE `*PREFIX*usersqueue` SET `activated`=TRUE where `email` = ? ');
 		return $query->execute(array($email));
 	}
 
 	public function deactivate($email) {
-		$query = $this->db->prepareQuery('UPDATE `*PREFIX*users_queue` SET `activated`=FALSE,`banned`=TRUE where `email` = ? ');
+		$query = $this->db->prepareQuery('UPDATE `*PREFIX*usersqueue` SET `activated`=FALSE,`banned`=TRUE where `email` = ? ');
 		return $query->execute(array($email));
 	}
 
 
 	public function findEmailByToken($token) {
-		$query = $this->db->prepareQuery('SELECT `email`,`username`, `password`, `activated` FROM `*PREFIX*users_queue` WHERE `token` = ? ');
+		$query = $this->db->prepareQuery('SELECT `email`,`username`, `password`, `activated` FROM `*PREFIX*usersqueue` WHERE `token` = ? ');
 		return $query->execute(array($token))->fetchOne();
 	}
 

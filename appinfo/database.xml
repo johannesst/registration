@@ -33,7 +33,7 @@
 		</declaration>
 	</table>
 	<table>
-		<name>*dbprefix*users_queue</name>
+		<name>*dbprefix*usersqueue</name>
 		<declaration>
 			<field>
 				<name>id</name>
