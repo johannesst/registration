@@ -20,8 +20,8 @@ foreach ( $_['groups'] as $group ) {
 	<input type="text" placeholder=<?php p$l->t('"Enter a semicolon-seperated list of allowed domains. Example: owncloud.com;github.com"');?> id="allowed_domains" name="allowed_domains" value=<?php p($_['allowed']);?>>
 	</p>
 	<p> 
-		<label for="needs_activation"><?php p($l->t('Registration needs Activation by Administrator')) ?></label>
-		<input type="checkbox" id="needs_activiation" name="needs_activiation" value=<?php p($_['needs_activiation']) ?>>
+		<label for="needs_activation"><?php p($l->t('Registration needs Activation by Administrator')); ?></label>
+		<input type="checkbox" id="needs_activiation" name="needs_activiation" value=<?php p($_['needs_activiation']); ?>>
 	</p>
 
 

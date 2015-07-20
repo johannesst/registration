@@ -43,16 +43,19 @@ class SettingsController extends Controller {
 	 *
 	 * @param string $registered_user_group all newly registered user will be put in this group
 	 * @param string $allowed_domains Registrations are only allowed for E-Mailadresses with these domains
+	 * @param string $needs_activation Whether registred accounts needs to be activated or not
 	 * @return DataResponse
 	 */
-	public function admin($registered_user_group, $allowed_domains, $needs_activiation) {
+	public function admin($registered_user_group, $allowed_domains, $needs_activation) {
 		if ( ( $allowed_domains==='' ) || ( $allowed_domains === NULL ) ){
 			$this->config->deleteAppValue($this->appName, 'allowed_domains');
 		}else{
 			$this->config->setAppValue($this->appName, 'allowed_domains', $allowed_domains);
 		}
 		if ( ( $needs_activiation === '' ) || ( $needs_activiation === NULL )) {
-			$this->config->deleteAppValue($this->appName, 'needs_activiation');
+			$this->config->deleteAppValue($this->appName, 'needs_activation');
+		}else{
+			$this->config->setAppValue($this->appName, 'needs_activation', $allowed_domains);
 		}
 
 		$groups = $this->groupmanager->search('');
@@ -94,12 +97,12 @@ class SettingsController extends Controller {
 		// TODO selected
 		$current_value = $this->config->getAppValue($this->appName, 'registered_user_group', 'none');
 		$allowed_domains = $this->config->getAppValue($this->appName, 'allowed_domains', '');
-		$needs_activiation = $this->config->getAppValue($this->appName, 'needs_activiation', '');
+		$needs_actviation = $this->config->getAppValue($this->appName, 'needs_activation', '');
 		return new TemplateResponse('registration', 'admin', [
 			'groups' => $group_id_list,
 			'current' => $current_value,
 			'allowed' => $allowed_domains,
-			'needs_activiation' => $needs_activiation
+			'needs_activation' => $needs_activation
 		], '');
 	}
 }
