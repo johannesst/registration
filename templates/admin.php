@@ -16,8 +16,11 @@ foreach ( $_['groups'] as $group ) {
 	</select>
 	</p>
 	<p>
-	<label for="allowed_domains"><?php p($l->t('Allowed domains for registration')); ?></label>
-	<input type="text" placeholder=<?php p$l->t('"Enter a semicolon-seperated list of allowed domains. Example: owncloud.com;github.com"');?> id="allowed_domains" name="allowed_domains" value=<?php p($_['allowed']);?>>
+	<label for="allowed_domains"><?php p($l->t('Allowed domains for registration')); ?></br>
+<?php p$l->t('Enter a semicolon-seperated list of allowed domains. Example: owncloud.com;github.com');?> 
+	</label>
+	<p> 
+	<input type="text" id="allowed_domains" name="allowed_domains" value=<?php p($_['allowed']);?>>
 	</p>
 	<p> 
 		<label for="needs_activation"><?php p($l->t('Registration needs Activation by Administrator')); ?></label>
