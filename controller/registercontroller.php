@@ -98,7 +98,7 @@ class RegisterController extends Controller {
 
 		$allowed_domains= $this->config->getAppValue($this->appName, 'allowed_domains','');
 		if ( ($allowed_domains === null) || ($allowed_domains === '') || ( strlen($allowed_domains)===0)){
-}else{
+		}else{
 			$allowed_domains= explode (";",$allowed_domains);
 			$allowed=false;
 			$domains=array();
@@ -120,7 +120,6 @@ class RegisterController extends Controller {
 			}
 		}//else var_dump($allowed_domains);
 		
-
 		$token = $this->pendingreg->save($email);
 		//TODO: check for error
 		$link = $this->urlgenerator->linkToRoute('registration.register.verifyToken', array('token' => $token));
@@ -158,6 +157,69 @@ class RegisterController extends Controller {
 		}
 	}
 
+	private function createQueueEntry($token,$email,$username,$password){
+	}
+	/**
+	  *
+
+	*/
+	private function createAccountPriv($email,$username,$password) {
+		try {
+			$user = $this->usermanager->createUser($username, $password);
+		} catch (Exception $e) {
+			return new TemplateResponse('registration', 'form',
+				array('email' => $email,
+					'entered_data' => array('username' => $username),
+					'errormsgs' => array($e->message, $username, $password)), 'guest');
+		}
+
+		if ( $user === false ) {
+			return new TemplateResponse('', 'error', array(
+				'errors' => array(array(
+				'error' => $this->l10n->t('Unable to create user, there are problems with user backend.'),
+				'hint' => ''
+				))
+			), 'error');
+		} else {
+			// Set user email
+			try {
+				$this->config->setUserValue($user->getUID(), 'settings', 'email', $email);
+			} catch (Exception $e) {
+				return new TemplateResponse('registration', 'form',
+					array('email' => $email,
+					'entered_data' => array('username' => $username),
+					'errormsgs' => array($e->message, $username, $password)), 'guest');
+			}
+
+			// Add user to group
+			$registered_user_group = $this->config->getAppValue($this->appName, 'registered_user_group', 'none');
+			if ( $registered_user_group !== 'none' ) {
+				try {
+					$group = $this->groupmanager->get($registered_user_group);
+					$group->addUser($user);
+				} catch (Exception $e) {
+					return new TemplateResponse('', 'error', array(
+						'errors' => array(array(
+							'error' => $e->message,
+						))
+					), 'error');
+				}
+			}
+
+			// Delete pending reg request
+				$res = $this->pendingreg->delete($email);
+				if ( \OCP\DB::isError($res) ) {
+					return new TemplateResponse('', 'error', array(
+						'errors' => array(array(
+						'error' => $this->l10n->t('Failed to delete pending registration request'),
+						'hint' => ''
+						))
+					), 'error');
+				}
+			}
+
+	}
+
 	/**
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
@@ -175,64 +237,19 @@ class RegisterController extends Controller {
 		} elseif ( $email ) {
 			$username = $this->request->getParam('username');
 			$password = $this->request->getParam('password');
-			try {
-				$user = $this->usermanager->createUser($username, $password);
-			} catch (Exception $e) {
-				return new TemplateResponse('registration', 'form',
-					array('email' => $email,
-						'entered_data' => array('username' => $username),
-						'errormsgs' => array($e->message, $username, $password)), 'guest');
+
+			//Do we need an activation by an Administrator?
+			$needs_activation= $this->config->getAppValue($this->appName, 'needs_activation','');
+			if ($needs_activation === 'checked'){
+				createQueueEntry($token,$email,$username,$password);	
+			}else{
+				$this->createAccountPriv($email,$username,$password);
+				return new TemplateResponse('registration', 'message', array('msg' =>
+					str_replace('{link}',
+						$this->urlgenerator->getAbsoluteURL('/'),
+						$this->l10n->t('Your account has been successfully created, you can <a href="{link}">log in now</a>.'))
+				)	, 'guest');
 			}
-			if ( $user === false ) {
-				return new TemplateResponse('', 'error', array(
-					'errors' => array(array(
-						'error' => $this->l10n->t('Unable to create user, there are problems with user backend.'),
-						'hint' => ''
-					))
-				), 'error');
-			} else {
-				// Set user email
-				try {
-					$this->config->setUserValue($user->getUID(), 'settings', 'email', $email);
-				} catch (Exception $e) {
-					return new TemplateResponse('registration', 'form',
-						array('email' => $email,
-						'entered_data' => array('username' => $username),
-						'errormsgs' => array($e->message, $username, $password)), 'guest');
-				}
-
-				// Add user to group
-				$registered_user_group = $this->config->getAppValue($this->appName, 'registered_user_group', 'none');
-				if ( $registered_user_group !== 'none' ) {
-					try {
-						$group = $this->groupmanager->get($registered_user_group);
-						$group->addUser($user);
-					} catch (Exception $e) {
-						return new TemplateResponse('', 'error', array(
-							'errors' => array(array(
-								'error' => $e->message,
-							))
-						), 'error');
-					}
-				}
-
-				// Delete pending reg request
-				$res = $this->pendingreg->delete($email);
-				if ( \OCP\DB::isError($res) ) {
-					return new TemplateResponse('', 'error', array(
-						'errors' => array(array(
-							'error' => $this->l10n->t('Failed to delete pending registration request'),
-							'hint' => ''
-						))
-					), 'error');
-				}
-			}
-
-			return new TemplateResponse('registration', 'message', array('msg' =>
-				str_replace('{link}',
-					$this->urlgenerator->getAbsoluteURL('/'),
-					$this->l10n->t('Your account has been successfully created, you can <a href="{link}">log in now</a>.'))
-				), 'guest');
 		}
 	}
 }
