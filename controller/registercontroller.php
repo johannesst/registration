@@ -158,6 +158,12 @@ class RegisterController extends Controller {
 	}
 
 	private function createQueueEntry($token,$email,$username,$password){
+
+				return new TemplateResponse('registration', 'message', array('msg' =>
+					str_replace('{link}',
+						$this->urlgenerator->getAbsoluteURL('/'),
+						$this->l10n->t('Your accounts needs to be enabled by an administrator.'))
+				)	, 'guest');
 	}
 	/**
 	  *
@@ -241,7 +247,7 @@ class RegisterController extends Controller {
 			//Do we need an activation by an Administrator?
 			$needs_activation= $this->config->getAppValue($this->appName, 'needs_activation','');
 			if ($needs_activation === 'checked'){
-				createQueueEntry($token,$email,$username,$password);	
+				$this->createQueueEntry($token,$email,$username,$password);	
 			}else{
 				$this->createAccountPriv($email,$username,$password);
 				return new TemplateResponse('registration', 'message', array('msg' =>
