@@ -18,16 +18,22 @@ class UsersQueue {
 		$this->random = $random;
 	}
 
-	public function save($email,$username,$password) {
+	public function save($token,$email,$username,$password) {
 		$query = $this->db->prepareQuery( 'INSERT INTO `*PREFIX*usersqueue`'
-			.' ( `email`, `username`, `password`, `activated`, `banned`,`token`,  `requested` ) VALUES( ?, ?,?, FALSE,FALSE, ?, NOW() )' );
-		$token = $this->random->generate(30);
-		$query->execute(array( $email, $username,$password,$token ));
+			.' ( `email`, `username`, `password`, `state`, `token`,  `requested` ) VALUES( ?, ?,?, ?, ?, NOW() )' );
+		//$token = $this->random->generate(30);
+		$query->execute(array( $email, $username,$password,'registered',$token ));
 		return $token;
 	}
+
 	public function find($email) {
-		$query = $this->db->prepareQuery('SELECT `email`,`username`,`password`,`activated` FROM `*PREFIX*usersqueue` WHERE `email` = ? ');
+		$query = $this->db->prepareQuery('SELECT `email`,`username`,`password`,`state` FROM `*PREFIX*usersqueue` WHERE `email` = ? ');
 		return $query->execute(array($email))->fetchAll();
+	}
+
+	public function findState($email,$state) {
+		$query = $this->db->prepareQuery('SELECT `email`,`username`,`password`,`state` FROM `*PREFIX*usersqueue` WHERE `email` = ? AND `state` = ? ');
+		return $query->execute(array($email,$state))->fetchAll();
 	}
 
 	public function delete($email) {
@@ -35,15 +41,20 @@ class UsersQueue {
 		return $query->execute(array($email));
 	}
 
-	public function activate($email) {
-		$query = $this->db->prepareQuery('UPDATE `*PREFIX*usersqueue` SET `activated`=TRUE where `email` = ? ');
-		return $query->execute(array($email));
+	public function setState($email,$state) {
+		if (in_array($state, array("registered","banned","activated"))){
+			$query = $this->db->prepareQuery('UPDATE `*PREFIX*usersqueue` SET `state`= ? where `email` = ? ');
+			return $query->execute(array($state,$email));
+		}else{
+			return new TemplateResponse('', 'error', array(
+				'errors' => array(array(
+				'error' => $this->l10n->t('Failed to change state in users queue'),
+				'hint' => ''
+				))
+			), 'error');
+		}
 	}
 
-	public function deactivate($email) {
-		$query = $this->db->prepareQuery('UPDATE `*PREFIX*usersqueue` SET `activated`=FALSE,`banned`=TRUE where `email` = ? ');
-		return $query->execute(array($email));
-	}
 
 
 	public function findEmailByToken($token) {

@@ -17,6 +17,7 @@ use \OCA\Registration\Controller\RegisterController;
 use \OCA\Registration\Controller\SettingsController;
 use \OCA\Registration\Wrapper;
 use \OCA\Registration\Db\PendingRegist;
+use \OCA\Registration\Db\UsersQueue;
 
 
 class Registration extends App {
@@ -37,6 +38,7 @@ class Registration extends App {
 				$c->query('L10N'),
 				$c->query('URLGenerator'),
 				$c->query('PendingRegist'),
+				$c->query('UsersQueue'),
 				$c->query('UserManager'),
 				$c->query('Config'),
 				$c->query('GroupManager')
@@ -87,6 +89,11 @@ class Registration extends App {
 
 		$container->registerService('PendingRegist', function($c) {
 			return new PendingRegist($c->query('ServerContainer')->getDb(),
+				$c->query('ServerContainer')->getSecureRandom()->getMediumStrengthGenerator());
+		});
+
+		$container->registerService('UsersQueue', function($c) {
+			return new UsersQueue($c->query('ServerContainer')->getDb(),
 				$c->query('ServerContainer')->getSecureRandom()->getMediumStrengthGenerator());
 		});
 	}

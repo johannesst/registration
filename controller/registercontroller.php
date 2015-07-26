@@ -28,17 +28,19 @@ class RegisterController extends Controller {
 	private $l10n;
 	private $urlgenerator;
 	private $pendingreg;
+	private $usersqueue;
 	private $usermanager;
 	private $config;
 	private $groupmanager;
 	protected $appName;
 
 	public function __construct($appName, IRequest $request, Wrapper\Mail $mail, IL10N $l10n, $urlgenerator,
-	$pendingreg, IUserManager $usermanager, IConfig $config, IGroupManager $groupmanager){
+	$pendingreg, $usersqueue, IUserManager $usermanager, IConfig $config, IGroupManager $groupmanager){
 		$this->mail = $mail;
 		$this->l10n = $l10n;
 		$this->urlgenerator = $urlgenerator;
 		$this->pendingreg = $pendingreg;
+		$this->usersqueue = $usersqueue;
 		$this->usermanager = $usermanager;
 		$this->config = $config;
 		$this->groupmanager = $groupmanager;
@@ -82,6 +84,16 @@ class RegisterController extends Controller {
 					'hint' => ''
 				))
 			), 'error');
+		}
+
+		if ($this->usersqueue->find($email) ) {
+			return new TemplateResponse('', 'error', array(
+				'errors' => array(array(
+					'error' => $this->l10n->t('There is already a pending registration with this email'),
+					'hint' => ''
+				))
+			), 'error');
+
 		}
 
 		if ( $this->config->getUsersForUserValue('settings', 'email', $email) ) {
@@ -156,10 +168,24 @@ class RegisterController extends Controller {
 			return new TemplateResponse('registration', 'form', array('email' => $email, 'token' => $token), 'guest');
 		}
 	}
+	private function deletePendingreg($email){
+		// Delete pending reg request
+		$res = $this->pendingreg->delete($email);
+		if ( \OCP\DB::isError($res) ) {
+			return new TemplateResponse('', 'error', array(
+				'errors' => array(array(
+				'error' => $this->l10n->t('Failed to delete pending registration request'),
+				'hint' => ''
+				))
+			), 'error');
+		}
+	}
 
 	private function createQueueEntry($token,$email,$username,$password){
-
+		$this->usersqueue->save($token,$email,$username,$password);
+		$this->deletePendingreg($email);
 	}
+	
 	/**
 	  *
 
@@ -206,18 +232,7 @@ class RegisterController extends Controller {
 					), 'error');
 				}
 			}
-
-			// Delete pending reg request
-				$res = $this->pendingreg->delete($email);
-				if ( \OCP\DB::isError($res) ) {
-					return new TemplateResponse('', 'error', array(
-						'errors' => array(array(
-						'error' => $this->l10n->t('Failed to delete pending registration request'),
-						'hint' => ''
-						))
-					), 'error');
-				}
-			}
+		}
 
 	}
 
@@ -238,17 +253,25 @@ class RegisterController extends Controller {
 		} elseif ( $email ) {
 			$username = $this->request->getParam('username');
 			$password = $this->request->getParam('password');
-
+			$needs_activation =  $this->config->getAppValue($this->appName, 'needs_activation','');
 			//Do we need an activation by an Administrator?
-			$needs_activation= $this->config->getAppValue($this->appName, 'needs_activation','');
 			if ($needs_activation === 'checked'){
-				$this->createQueueEntry($token,$email,$username,$password);	
 
-				return new TemplateResponse('registration', 'message', array('msg' =>
+				// 
+				if(empty($this->usersqueue->find($email))){
+					$this->createQueueEntry($token,$email,$username,$password);	
+					return new TemplateResponse('registration', 'message', array('msg' =>
 						$this->l10n->t('Your account needs to be enabled by an administrator.')
 				), 'guest');
+				}
+
+
 			}else{
 				$this->createAccountPriv($email,$username,$password);
+				$this->deletePendingreg($email);
+		
+		
+
 				return new TemplateResponse('registration', 'message', array('msg' =>
 					str_replace('{link}',
 						$this->urlgenerator->getAbsoluteURL('/'),
@@ -257,4 +280,5 @@ class RegisterController extends Controller {
 			}
 		}
 	}
+
 }
