@@ -18,7 +18,8 @@ $c = $app->getContainer();
 
 // add an navigation entry
 $user = $c->getServer()->getUserSession()->getUser();
-$group = 'cleveradmin';
+$group = $c->query('Config')->getAppValue($c->getAppName(),'moderation_group','');
+//'cleveradmin';
 if (\OC_Group::inGroup($user->getUID(), $group) || $c->isAdminUser() ){
 	$navigationEntry = function () use ($c) {
 		return [
