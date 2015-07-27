@@ -26,6 +26,11 @@ class UsersQueue {
 		return $token;
 	}
 
+	public function getQueue(){
+		$query = $this->db->prepareQuery('SELECT `id`,`email`,`username`,`state`,`token` FROM `*PREFIX*usersqueue` ');
+		return $query->execute()->fetchAll();
+	}
+
 	public function find($email) {
 		$query = $this->db->prepareQuery('SELECT `email`,`username`,`password`,`state` FROM `*PREFIX*usersqueue` WHERE `email` = ? ');
 		return $query->execute(array($email))->fetchAll();
