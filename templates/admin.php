@@ -32,5 +32,17 @@ foreach ( $_['groups'] as $group ) {
 		<input type="checkbox" id="needs_activation" name="needs_activation" value="checked" <?php p($_['needs_activation']); ?>>
 	</p>
 
+	<p>
+	<label for="registrators_group"><?php p($l->t('Group of users which are allowed to approve pending  registrations')); ?></label>
+	<select id="registrators_group" name="registrators_group">
+		<option value="none" <?php echo $_['currentregistratorsgroup'] === 'none' ? 'selected="selected"' : ''; ?>><?php p($l->t('None')); ?></option>
+<?php
+foreach ( $_['groups'] as $group ) {
+	$selected = $_['currentregistratorsgroup'] === $group ? 'selected="selected"' : '';
+	echo '<option value="'.$group.'" '.$selected.'>'.$group.'</option>';
+}
+?>
+	</select>
+	</p>
 
 </form>
