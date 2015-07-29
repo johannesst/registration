@@ -44,15 +44,16 @@ class SettingsController extends Controller {
 	 * @param string $registered_user_group all newly registered user will be put in this group
 	 * @param string $allowed_domains Registrations are only allowed for E-Mailadresses with these domains
 	 * @param string $needs_activation Whether registred accounts needs to be activated or not
+	 * @param string $registrators_group Group of users which are allowed to approve pending registrations
 	 * @return DataResponse
 	 */
-	public function admin($registered_user_group, $allowed_domains, $needs_activation) {
+	public function admin($registered_user_group, $allowed_domains, $needs_activation,$registrators_group ) {
 		if ( ( $allowed_domains==='' ) || ( $allowed_domains === NULL ) ){
 			$this->config->deleteAppValue($this->appName, 'allowed_domains');
 		}else{
 			$this->config->setAppValue($this->appName, 'allowed_domains', $allowed_domains);
 		}
-		if ( ( $needs_activation === '' ) || ( $needs_activation === NULL )) {
+		if (  ( $needs_activation === '' || $needs_activation === NULL ) ) {
 			$this->config->deleteAppValue($this->appName, 'needs_activation');
 		}else{
 			$this->config->setAppValue($this->appName, 'needs_activation', $needs_activation);
@@ -61,6 +62,13 @@ class SettingsController extends Controller {
 		$groups = $this->groupmanager->search('');
 		foreach ( $groups as $group ) {
 			$group_id_list[] = $group->getGid();
+		}
+		if (  $registrators_group ==='none' ) {
+			$this->config->deleteAppValue($this->appName, 'registrators_group');
+		}else if  ( in_array($registrators_group, $group_id_list ) )  {
+			$this->config->setAppValue($this->appName, 'registrators_group', $registrators_group);
+		}else{
+			$this->config->setAppValue($this->appName, 'registrators_group', $registrators_group);
 		}
 		if ( $registered_user_group === 'none' ) {
 			$this->config->deleteAppValue($this->appName, 'registered_user_group');
@@ -98,11 +106,13 @@ class SettingsController extends Controller {
 		$current_value = $this->config->getAppValue($this->appName, 'registered_user_group', 'none');
 		$allowed_domains = $this->config->getAppValue($this->appName, 'allowed_domains', '');
 		$needs_activation = $this->config->getAppValue($this->appName, 'needs_activation', '');
+		$registrators_group = $this->config->getAppValue($this->appName, 'registrators_group', 'none');
 		return new TemplateResponse('registration', 'admin', [
 			'groups' => $group_id_list,
 			'current' => $current_value,
 			'allowed' => $allowed_domains,
-			'needs_activation' => $needs_activation
+			'needs_activation' => $needs_activation , 
+			'currentmodgroup' => $registrators_group
 		], '');
 	}
 }

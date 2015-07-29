@@ -18,6 +18,7 @@ use \OCP\AppFramework\Controller;
 use \OCP\Util;
 use \OCA\Registration\Wrapper;
 use \OCP\IUserManager;
+use \OCP\User;
 use \OCP\IGroupManager;
 use \OCP\IL10N;
 use \OCP\IConfig;
@@ -87,6 +88,10 @@ class RegisterController extends Controller {
 		}
 
 		if ($this->usersqueue->find($email) ) {
+<<<<<<< HEAD
+=======
+
+>>>>>>> 3300365b97587d0b97a1dd22e4199f9106481387
 			return new TemplateResponse('', 'error', array(
 				'errors' => array(array(
 					'error' => $this->l10n->t('There is already a pending registration with this email'),
@@ -150,6 +155,75 @@ class RegisterController extends Controller {
 		), 'guest');
 	}
 
+
+	/**
+	 * @NoAdminRequired
+	 * @NoCSRFRequired
+	 * @PublicPage
+	  */
+	public function pendingReg(){
+	//	OCP\User::checkAdminUser();
+			$accounts=$this->usersqueue->getQueue();
+			return new TemplateResponse('registration', 'queue', [
+				'accounts' => $accounts
+				]);
+
+	}
+
+	/**
+	 * @NoAdminRequired
+	 * @NoCSRFRequired
+	 * @PublicPage
+	  */
+	public function changeQueue(){
+			$ban = $this->request->getParam('ban');
+			$enable = $this->request->getParam('enable');
+			$accounts = $this->usersqueue->getQueue();
+			$email = null;
+			$state = null;
+			if ($ban === null && $enable !== null ){
+				$email = $enable;
+				$state = 'activated';
+			}else if ($enable === null && $ban !==null) {
+				$email = $ban;
+				$state= 'banned';
+			}else{
+				return new TemplateResponse('', 'error', array(
+					'errors' => array(array(
+					'error' => $this->l10n->t('Changing queue entry failed'),
+					'hint' => ''
+					))
+				), 'error');
+			}
+			//->$usersqueue->setState($email,$state);	
+			$entry=$this->usersqueue->find($email);
+			if (!empty(array_filter($entry))) {
+				$username = $entry[0]['username'];
+				$password = $entry[0]['password'];
+				if ($state === 'activated'){
+					$this->createAccountPriv($email,$username,$password);
+					$this->usersqueue->delete($email);	
+				}else if($state === 'banned'){
+					$this->usersqueue->setState($email,$state);
+			
+				}else{
+					return new TemplateResponse('', 'error', array(
+						'errors' => array(array(
+						'error' => $this->l10n->t('Changing queue entry failed'),
+						'hint' => ''
+						))
+					), 'error');
+			}
+				}
+			//	$this->createAccountPriv($email,$username,$password);
+
+			$accounts=$this->usersqueue->getQueue();
+			return new TemplateResponse('registration', 'queue', [
+				'accounts' => $accounts
+				]);
+
+
+	}
 	/**
 	 * @NoAdminRequired
 	 * @NoCSRFRequired

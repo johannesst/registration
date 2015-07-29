@@ -10,9 +10,27 @@
  */
 
 namespace OCA\Registration\App;
+use \OCP\IUserSession;
 
 $app = new Registration();
 $c = $app->getContainer();
+
+
+// add an navigation entry
+$user = $c->getServer()->getUserSession()->getUser();//->getUID();
+$group = $c->query('Config')->getAppValue($c->getAppName(),'registrators_group','');
+if (\OC_Group::inGroup($user, $group) || $c->isAdminUser() ){
+	$navigationEntry = function () use ($c) {
+		return [
+			'id' => $c->getAppName(),
+			'order' => 1,
+			'name' => $c->query('L10N')->t('Pending Requests'),
+			'href' => $c->query('URLGenerator')->linkToRoute('registration.register.pendingReg'),
+			'icon' => $c->query('URLGenerator')->imagePath('settings', 'users.svg'),
+		];
+	};
+	$c->getServer()->getNavigationManager()->add($navigationEntry);
+}
 
 \OC_App::registerLogIn(array('name' => $c->query('L10N')->t('Register'), 'href' => $c->query('URLGenerator')->linkToRoute('registration.register.askEmail')));
 
