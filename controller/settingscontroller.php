@@ -112,7 +112,7 @@ class SettingsController extends Controller {
 			'current' => $current_value,
 			'allowed' => $allowed_domains,
 			'needs_activation' => $needs_activation , 
-			'currentmodgroup' => $registrators_group
+			'currentregistratorsgroup' => $registrators_group
 		], '');
 	}
 }
