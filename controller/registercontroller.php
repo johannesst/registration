@@ -142,7 +142,7 @@ class RegisterController extends Controller {
 		$msg = $res->render();
 		try {
 			$this->mail->sendMail($email, 'ownCloud User', $this->l10n->t('Verify your ownCloud registration request'), $msg, $from, 'ownCloud');
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			\OC_Template::printErrorPage( 'A problem occurs during sending the e-mail please contact your administrator.');
 			return;
 		}
@@ -367,7 +367,6 @@ class RegisterController extends Controller {
 					return new TemplateResponse('registration', 'message', array('msg' =>
 						$this->l10n->t('Your account needs to be enabled by an administrator.')
 				), 'guest');
-				}
 
 
 			}else{
