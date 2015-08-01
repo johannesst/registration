@@ -17,14 +17,15 @@ $c = $app->getContainer();
 
 
 // add an navigation entry
-$user = $c->getServer()->getUserSession()->getUser();//->getUID();
+//$user = $c->getServer()->getUserSession()->getUser()->getUID();
+$user = \OC_User::getUser();
 $group = $c->query('Config')->getAppValue($c->getAppName(),'registrators_group','');
 if (\OC_Group::inGroup($user, $group) || $c->isAdminUser() ){
 	$navigationEntry = function () use ($c) {
 		return [
 			'id' => $c->getAppName(),
 			'order' => 1,
-			'name' => $c->query('L10N')->t('Pending Requests'),
+			'name' => $c->query('L10N')->t('Pending registration requests'),
 			'href' => $c->query('URLGenerator')->linkToRoute('registration.register.pendingReg'),
 			'icon' => $c->query('URLGenerator')->imagePath('settings', 'users.svg'),
 		];
