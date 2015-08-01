@@ -88,10 +88,6 @@ class RegisterController extends Controller {
 		}
 
 		if ($this->usersqueue->find($email) ) {
-<<<<<<< HEAD
-=======
-
->>>>>>> 3300365b97587d0b97a1dd22e4199f9106481387
 			return new TemplateResponse('', 'error', array(
 				'errors' => array(array(
 					'error' => $this->l10n->t('There is already a pending registration with this email'),
@@ -159,15 +155,22 @@ class RegisterController extends Controller {
 	/**
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
-	 * @PublicPage
+	 * @NoPublicPage
 	  */
 	public function pendingReg(){
 	//	OCP\User::checkAdminUser();
+		$user=  \OC_User::getUser();
+		$group = $this->config->getAppValue($this->appName,'registrators_group','');
+		if (\OC_Group::inGroup($user, $group) || \OC_User::isAdminUser($user)){
+
 			$accounts=$this->usersqueue->getQueue();
 			return new TemplateResponse('registration', 'queue', [
 				'accounts' => $accounts
 				]);
 
+		}else{
+				\OCP\User::checkAdminUser();
+		}
 	}
 
 	/**
@@ -196,15 +199,42 @@ class RegisterController extends Controller {
 				), 'error');
 			}
 			//->$usersqueue->setState($email,$state);	
+			//$msg = $res->render();
 			$entry=$this->usersqueue->find($email);
 			if (!empty(array_filter($entry))) {
 				$username = $entry[0]['username'];
 				$password = $entry[0]['password'];
 				if ($state === 'activated'){
 					$this->createAccountPriv($email,$username,$password);
+					$from = Util::getDefaultEmailAddress('register');
+
+					$link = $this->urlgenerator->getAbsoluteURL('/');
+					$msg=str_replace('{link}', $link, $this->l10n->t('Your account has been enabled, you can <a href="{link}">log in now</a>.'));
+
 					$this->usersqueue->delete($email);	
+					try {
+						$this->mail->sendMail($email, 'ownCloud User', $this->l10n->t('ownCloud account enabled'), $msg, $from, 'ownCloud');
+					} catch (Exception $e) {
+						\OC_Template::printErrorPage( 'A problem occurs during sending the e-mail please contact your administrator.');
+						return;
+					}
+					return new TemplateResponse('registration', 'message', array('msg' =>
+						$this->l10n->t('Enable email successfully sent.')
+					), 'guest');
 				}else if($state === 'banned'){
 					$this->usersqueue->setState($email,$state);
+					$from = Util::getDefaultEmailAddress('register');
+
+					$msg=$this->l10n->t('Your Emailadress has been banned. Please contact the administrator for more information.');
+					try {
+						$this->mail->sendMail($email, 'ownCloud User', $this->l10n->t('ownCloud registration banned'), $msg, $from, 'ownCloud');
+					} catch (Exception $e) {
+						\OC_Template::printErrorPage( 'A problem occurs during sending the e-mail please contact your administrator.');
+						return;
+					}
+					return new TemplateResponse('registration', 'message', array('msg' =>
+						$this->l10n->t('Ban email successfully sent.')
+					), 'guest');
 			
 				}else{
 					return new TemplateResponse('', 'error', array(
@@ -213,7 +243,7 @@ class RegisterController extends Controller {
 						'hint' => ''
 						))
 					), 'error');
-			}
+					}
 				}
 			//	$this->createAccountPriv($email,$username,$password);
 
