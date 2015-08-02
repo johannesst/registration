@@ -36,7 +36,7 @@ class RegisterController extends Controller {
 	protected $appName;
 
 	public function __construct($appName, IRequest $request, Wrapper\Mail $mail, IL10N $l10n, $urlgenerator,
-	$pendingreg, $usersqueue, IUserManager $usermanager, IConfig $config, IGroupManager $groupmanager){
+			$pendingreg, $usersqueue, IUserManager $usermanager, IConfig $config, IGroupManager $groupmanager){
 		$this->mail = $mail;
 		$this->l10n = $l10n;
 		$this->urlgenerator = $urlgenerator;
@@ -56,9 +56,9 @@ class RegisterController extends Controller {
 	 */
 	public function askEmail($errormsg, $entered) {
 		$params = array(
-			'errormsg' => $errormsg ? $errormsg : $this->request->getParam('errormsg'),
-			'entered' => $entered ? $entered : $this->request->getParam('entered')
-		);
+				'errormsg' => $errormsg ? $errormsg : $this->request->getParam('errormsg'),
+				'entered' => $entered ? $entered : $this->request->getParam('entered')
+			       );
 		return new TemplateResponse('registration', 'register', $params, 'guest');
 	}
 
@@ -71,39 +71,39 @@ class RegisterController extends Controller {
 		$email = $this->request->getParam('email');
 		if ( !filter_var($email, FILTER_VALIDATE_EMAIL) ) {
 			return new TemplateResponse('', 'error', array(
-				'errors' => array(array(
-					'error' => $this->l10n->t('Email address you entered is not valid'),
-					'hint' => ''
-				))
-			), 'error');
+						'errors' => array(array(
+								'error' => $this->l10n->t('Email address you entered is not valid'),
+								'hint' => ''
+								))
+						), 'error');
 		}
 
 		if ( $this->pendingreg->find($email) ) {
 			return new TemplateResponse('', 'error', array(
-				'errors' => array(array(
-					'error' => $this->l10n->t('There is already a pending registration with this email'),
-					'hint' => ''
-				))
-			), 'error');
+						'errors' => array(array(
+								'error' => $this->l10n->t('There is already a pending registration with this email'),
+								'hint' => ''
+								))
+						), 'error');
 		}
 
 		if ($this->usersqueue->find($email) ) {
 			return new TemplateResponse('', 'error', array(
-				'errors' => array(array(
-					'error' => $this->l10n->t('There is already a pending registration with this email'),
-					'hint' => ''
-				))
-			), 'error');
+						'errors' => array(array(
+								'error' => $this->l10n->t('There is already a pending registration with this email'),
+								'hint' => ''
+								))
+						), 'error');
 
 		}
 
 		if ( $this->config->getUsersForUserValue('settings', 'email', $email) ) {
 			return new TemplateResponse('', 'error', array(
-				'errors' => array(array(
-					'error' => $this->l10n->t('There is an existing user with this email'),
-					'hint' => ''
-				))
-			), 'error');
+						'errors' => array(array(
+								'error' => $this->l10n->t('There is an existing user with this email'),
+								'hint' => ''
+								))
+						), 'error');
 		}
 
 
@@ -123,16 +123,16 @@ class RegisterController extends Controller {
 					$allowed=true;
 					break;
 				}
-					
+
 			}
 			// $allowed still false->return error message
 			if ( $allowed === false ) {
 				return new TemplateResponse('registration', 'domains', ['domains' =>
-					$domains
-				], 'guest');
+						$domains
+						], 'guest');
 			}
 		}//else var_dump($allowed_domains);
-		
+
 		$token = $this->pendingreg->save($email);
 		//TODO: check for error
 		$link = $this->urlgenerator->linkToRoute('registration.register.verifyToken', array('token' => $token));
@@ -147,8 +147,8 @@ class RegisterController extends Controller {
 			return;
 		}
 		return new TemplateResponse('registration', 'message', array('msg' =>
-			$this->l10n->t('Verification email successfully sent.')
-		), 'guest');
+					$this->l10n->t('Verification email successfully sent.')
+					), 'guest');
 	}
 
 
@@ -156,20 +156,20 @@ class RegisterController extends Controller {
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
 	 * @NoPublicPage
-	  */
+	 */
 	public function pendingReg(){
-	//	OCP\User::checkAdminUser();
+		//	OCP\User::checkAdminUser();
 		$user=  \OC_User::getUser();
 		$group = $this->config->getAppValue($this->appName,'registrators_group','');
 		if (\OC_Group::inGroup($user, $group) || \OC_User::isAdminUser($user)){
 
 			$accounts=$this->usersqueue->getQueue();
 			return new TemplateResponse('registration', 'queue', [
-				'accounts' => $accounts
-				]);
+					'accounts' => $accounts
+					]);
 
 		}else{
-				\OCP\User::checkAdminUser();
+			\OCP\User::checkAdminUser();
 		}
 	}
 
@@ -177,78 +177,78 @@ class RegisterController extends Controller {
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
 	 * @PublicPage
-	  */
+	 */
 	public function changeQueue(){
-			$ban = $this->request->getParam('ban');
-			$enable = $this->request->getParam('enable');
-			$accounts = $this->usersqueue->getQueue();
-			$email = null;
-			$state = null;
-			if ($ban === null && $enable !== null ){
-				$email = $enable;
-				$state = 'activated';
-			}else if ($enable === null && $ban !==null) {
-				$email = $ban;
-				$state= 'banned';
+		$ban = $this->request->getParam('ban');
+		$enable = $this->request->getParam('enable');
+		$accounts = $this->usersqueue->getQueue();
+		$email = null;
+		$state = null;
+		if ($ban === null && $enable !== null ){
+			$email = $enable;
+			$state = 'activated';
+		}else if ($enable === null && $ban !==null) {
+			$email = $ban;
+			$state= 'banned';
+		}else{
+			return new TemplateResponse('', 'error', array(
+						'errors' => array(array(
+								'error' => $this->l10n->t('Changing queue entry failed'),
+								'hint' => ''
+								))
+						), 'error');
+		}
+		//->$usersqueue->setState($email,$state);	
+		//$msg = $res->render();
+		$entry=$this->usersqueue->find($email);
+		if (!empty(array_filter($entry))) {
+			$username = $entry[0]['username'];
+			$password = $entry[0]['password'];
+			if ($state === 'activated'){
+				$this->createAccountPriv($email,$username,$password);
+				$from = Util::getDefaultEmailAddress('register');
+
+				$link = $this->urlgenerator->getAbsoluteURL('/');
+				$msg=str_replace('{link}', $link, $this->l10n->t('Your account has been enabled, you can <a href="{link}">log in now</a>.'));
+
+				$this->usersqueue->delete($email);	
+				try {
+					$this->mail->sendMail($email, 'ownCloud User', $this->l10n->t('ownCloud account enabled'), $msg, $from, 'ownCloud');
+				} catch (Exception $e) {
+					\OC_Template::printErrorPage( 'A problem occurs during sending the e-mail please contact your administrator.');
+					return;
+				}
+				return new TemplateResponse('registration', 'message', array('msg' =>
+							$this->l10n->t('Enable email successfully sent.')
+							), 'guest');
+			}else if($state === 'banned'){
+				$this->usersqueue->setState($email,$state);
+				$from = Util::getDefaultEmailAddress('register');
+
+				$msg=$this->l10n->t('Your Emailadress has been banned. Please contact the administrator for more information.');
+				try {
+					$this->mail->sendMail($email, 'ownCloud User', $this->l10n->t('ownCloud registration banned'), $msg, $from, 'ownCloud');
+				} catch (Exception $e) {
+					\OC_Template::printErrorPage( 'A problem occurs during sending the e-mail please contact your administrator.');
+					return;
+				}
+				return new TemplateResponse('registration', 'message', array('msg' =>
+							$this->l10n->t('Ban email successfully sent.')
+							), 'guest');
+
 			}else{
 				return new TemplateResponse('', 'error', array(
-					'errors' => array(array(
-					'error' => $this->l10n->t('Changing queue entry failed'),
-					'hint' => ''
-					))
-				), 'error');
+							'errors' => array(array(
+									'error' => $this->l10n->t('Changing queue entry failed'),
+									'hint' => ''
+									))
+							), 'error');
 			}
-			//->$usersqueue->setState($email,$state);	
-			//$msg = $res->render();
-			$entry=$this->usersqueue->find($email);
-			if (!empty(array_filter($entry))) {
-				$username = $entry[0]['username'];
-				$password = $entry[0]['password'];
-				if ($state === 'activated'){
-					$this->createAccountPriv($email,$username,$password);
-					$from = Util::getDefaultEmailAddress('register');
+		}
+		//	$this->createAccountPriv($email,$username,$password);
 
-					$link = $this->urlgenerator->getAbsoluteURL('/');
-					$msg=str_replace('{link}', $link, $this->l10n->t('Your account has been enabled, you can <a href="{link}">log in now</a>.'));
-
-					$this->usersqueue->delete($email);	
-					try {
-						$this->mail->sendMail($email, 'ownCloud User', $this->l10n->t('ownCloud account enabled'), $msg, $from, 'ownCloud');
-					} catch (Exception $e) {
-						\OC_Template::printErrorPage( 'A problem occurs during sending the e-mail please contact your administrator.');
-						return;
-					}
-					return new TemplateResponse('registration', 'message', array('msg' =>
-						$this->l10n->t('Enable email successfully sent.')
-					), 'guest');
-				}else if($state === 'banned'){
-					$this->usersqueue->setState($email,$state);
-					$from = Util::getDefaultEmailAddress('register');
-
-					$msg=$this->l10n->t('Your Emailadress has been banned. Please contact the administrator for more information.');
-					try {
-						$this->mail->sendMail($email, 'ownCloud User', $this->l10n->t('ownCloud registration banned'), $msg, $from, 'ownCloud');
-					} catch (Exception $e) {
-						\OC_Template::printErrorPage( 'A problem occurs during sending the e-mail please contact your administrator.');
-						return;
-					}
-					return new TemplateResponse('registration', 'message', array('msg' =>
-						$this->l10n->t('Ban email successfully sent.')
-					), 'guest');
-			
-				}else{
-					return new TemplateResponse('', 'error', array(
-						'errors' => array(array(
-						'error' => $this->l10n->t('Changing queue entry failed'),
-						'hint' => ''
-						))
-					), 'error');
-					}
-				}
-			//	$this->createAccountPriv($email,$username,$password);
-
-			$accounts=$this->usersqueue->getQueue();
-			return new TemplateResponse('registration', 'queue', [
+		$accounts=$this->usersqueue->getQueue();
+		return new TemplateResponse('registration', 'queue', [
 				'accounts' => $accounts
 				]);
 
@@ -263,11 +263,11 @@ class RegisterController extends Controller {
 		$email = $this->pendingreg->findEmailByToken($token);
 		if ( \OCP\DB::isError($email) ) {
 			return new TemplateResponse('', 'error', array(
-				'errors' => array(array(
-					'error' => $this->l10n->t('Invalid verification URL. No registration request with this verification URL is found.'),
-					'hint' => ''
-				))
-			), 'error');
+						'errors' => array(array(
+								'error' => $this->l10n->t('Invalid verification URL. No registration request with this verification URL is found.'),
+								'hint' => ''
+								))
+						), 'error');
 		} elseif ( $email ) {
 			return new TemplateResponse('registration', 'form', array('email' => $email, 'token' => $token), 'guest');
 		}
@@ -277,11 +277,11 @@ class RegisterController extends Controller {
 		$res = $this->pendingreg->delete($email);
 		if ( \OCP\DB::isError($res) ) {
 			return new TemplateResponse('', 'error', array(
-				'errors' => array(array(
-				'error' => $this->l10n->t('Failed to delete pending registration request'),
-				'hint' => ''
-				))
-			), 'error');
+						'errors' => array(array(
+								'error' => $this->l10n->t('Failed to delete pending registration request'),
+								'hint' => ''
+								))
+						), 'error');
 		}
 	}
 
@@ -289,37 +289,37 @@ class RegisterController extends Controller {
 		$this->usersqueue->save($token,$email,$username,$password);
 		$this->deletePendingreg($email);
 	}
-	
-	/**
-	  *
 
-	*/
+	/**
+	 *
+
+	 */
 	private function createAccountPriv($email,$username,$password) {
 		try {
 			$user = $this->usermanager->createUser($username, $password);
 		} catch (Exception $e) {
 			return new TemplateResponse('registration', 'form',
-				array('email' => $email,
-					'entered_data' => array('username' => $username),
-					'errormsgs' => array($e->message, $username, $password)), 'guest');
+					array('email' => $email,
+						'entered_data' => array('username' => $username),
+						'errormsgs' => array($e->message, $username, $password)), 'guest');
 		}
 
 		if ( $user === false ) {
 			return new TemplateResponse('', 'error', array(
-				'errors' => array(array(
-				'error' => $this->l10n->t('Unable to create user, there are problems with user backend.'),
-				'hint' => ''
-				))
-			), 'error');
+						'errors' => array(array(
+								'error' => $this->l10n->t('Unable to create user, there are problems with user backend.'),
+								'hint' => ''
+								))
+						), 'error');
 		} else {
 			// Set user email
 			try {
 				$this->config->setUserValue($user->getUID(), 'settings', 'email', $email);
 			} catch (Exception $e) {
 				return new TemplateResponse('registration', 'form',
-					array('email' => $email,
-					'entered_data' => array('username' => $username),
-					'errormsgs' => array($e->message, $username, $password)), 'guest');
+						array('email' => $email,
+							'entered_data' => array('username' => $username),
+							'errormsgs' => array($e->message, $username, $password)), 'guest');
 			}
 
 			// Add user to group
@@ -330,10 +330,10 @@ class RegisterController extends Controller {
 					$group->addUser($user);
 				} catch (Exception $e) {
 					return new TemplateResponse('', 'error', array(
-						'errors' => array(array(
-							'error' => $e->message,
-						))
-					), 'error');
+								'errors' => array(array(
+										'error' => $e->message,
+										))
+								), 'error');
 				}
 			}
 		}
@@ -349,11 +349,11 @@ class RegisterController extends Controller {
 		$email = $this->pendingreg->findEmailByToken($token);
 		if ( \OCP\DB::isError($email) ) {
 			return new TemplateResponse('', 'error', array(
-				'errors' => array(array(
-					'error' => $this->l10n->t('Invalid verification URL. No registration request with this verification URL is found.'),
-					'hint' => ''
-				))
-			), 'error');
+						'errors' => array(array(
+								'error' => $this->l10n->t('Invalid verification URL. No registration request with this verification URL is found.'),
+								'hint' => ''
+								))
+						), 'error');
 		} elseif ( $email ) {
 			$username = $this->request->getParam('username');
 			$password = $this->request->getParam('password');
@@ -365,23 +365,24 @@ class RegisterController extends Controller {
 				if(empty($this->usersqueue->find($email))){
 					$this->createQueueEntry($token,$email,$username,$password);	
 					return new TemplateResponse('registration', 'message', array('msg' =>
-						$this->l10n->t('Your account needs to be enabled by an administrator.')
-				), 'guest');
+								$this->l10n->t('Your account needs to be enabled by an administrator.')
+								), 'guest');
 
 
-			}else{
-				$this->createAccountPriv($email,$username,$password);
-				$this->deletePendingreg($email);
-		
-		
+				}else{
+					$this->createAccountPriv($email,$username,$password);
+					$this->deletePendingreg($email);
 
-				return new TemplateResponse('registration', 'message', array('msg' =>
-					str_replace('{link}',
-						$this->urlgenerator->getAbsoluteURL('/'),
-						$this->l10n->t('Your account has been successfully created, you can <a href="{link}">log in now</a>.'))
-				)	, 'guest');
+
+
+					return new TemplateResponse('registration', 'message', array('msg' =>
+								str_replace('{link}',
+									$this->urlgenerator->getAbsoluteURL('/'),
+									$this->l10n->t('Your account has been successfully created, you can <a href="{link}">log in now</a>.'))
+								)	, 'guest');
+				}
 			}
 		}
-	}
 
+	}
 }
