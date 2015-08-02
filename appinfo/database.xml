@@ -59,18 +59,8 @@
 				<notnull>true</notnull>
 			</field>
 			<field>
-				<name>activated</name>
+				<name>state</name>
 				<type>boolean</type>
-				<notnull>true</notnull>
-			</field>
-			<field>
-				<name>banned</name>
-				<type>boolean</type>
-				<notnull>true</notnull>
-			</field>
-			<field>
-				<name>token</name>
-				<type>text</type>
 				<notnull>true</notnull>
 			</field>
 			<field>
