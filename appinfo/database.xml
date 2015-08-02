@@ -63,6 +63,12 @@
 				<type>boolean</type>
 				<notnull>true</notnull>
 			</field>
+
+			<field>
+				<name>token</name>
+				<type>text</type>
+				<notnull>true</notnull>
+			</field>
 			<field>
 			
 				<name>requested</name>
