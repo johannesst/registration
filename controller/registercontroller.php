@@ -165,8 +165,11 @@ class RegisterController extends Controller {
 		if (\OC_Group::inGroup($user, $group) || \OC_User::isAdminUser($user)){
 
 			$accounts=$this->usersqueue->getQueue();
+			$link = $this->urlgenerator->linkToRoute('registration.register.changeQueue');
+			$link = $this->urlgenerator->getAbsoluteURL($link);
 			return new TemplateResponse('registration', 'queue', [
-					'accounts' => $accounts
+					'accounts' => $accounts,
+					'link' => $link
 					]);
 
 		}else{
@@ -250,8 +253,11 @@ class RegisterController extends Controller {
 		//	$this->createAccountPriv($email,$username,$password);
 
 		$accounts=$this->usersqueue->getQueue();
+		$link = $this->urlgenerator->linkToRoute('registration.register.changeQueue');
+		$link = $this->urlgenerator->getAbsoluteURL($link);
 		return new TemplateResponse('registration', 'queue', [
-				'accounts' => $accounts
+				'accounts' => $accounts,
+				'link' => $link
 				]);
 
 

@@ -1,7 +1,7 @@
 <?php
 \OCP\Util::addStyle('settings','settings');
 ?>
-<form action="<?php print_unescaped(OC_Helper::linkToRoute('registration.register.changeQueue' )) ?>" method="post">
+<form action="<?php print_unescaped($_['link'] ) ?>" method="post">
 	
 <table  class="hascontrols grid">
 	<thead>
