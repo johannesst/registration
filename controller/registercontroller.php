@@ -56,6 +56,7 @@ class RegisterController extends Controller {
 	 */
 	public function askEmail($errormsg, $entered) {
 		$params = array(
+				'link'  => $this->urlgenerator->getAbsoluteURL($this->urlgenerator->linkToRoute('registration.register.validateEmail')), 
 				'errormsg' => $errormsg ? $errormsg : $this->request->getParam('errormsg'),
 				'entered' => $entered ? $entered : $this->request->getParam('entered')
 			       );
@@ -221,6 +222,7 @@ class RegisterController extends Controller {
 				return new TemplateResponse('registration', 'message', array('msg' =>
 							$this->l10n->t('Enable email successfully sent.')
 							), 'guest');
+
 			}else if($state === 'banned'){
 				$this->usersqueue->setState($email,$state);
 				$from = Util::getDefaultEmailAddress('register');
@@ -269,7 +271,7 @@ class RegisterController extends Controller {
 								))
 						), 'error');
 		} elseif ( $email ) {
-			return new TemplateResponse('registration', 'form', array('email' => $email, 'token' => $token), 'guest');
+			return new TemplateResponse('registration', 'form', array('link'  => $this->urlgenerator->getAbsoluteURL($this->urlgenerator->linkToRoute('registration.register.createAccount',array('token' => $token))), 'email' => $email, 'token' => $token), 'guest');
 		}
 	}
 	private function deletePendingreg($email){
@@ -299,7 +301,8 @@ class RegisterController extends Controller {
 			$user = $this->usermanager->createUser($username, $password);
 		} catch (Exception $e) {
 			return new TemplateResponse('registration', 'form',
-					array('email' => $email,
+					array(  'email' => $email, 
+						'link'  => $this->urlgenerator->getAbsoluteURL($this->urlgenerator->linkToRoute('registration.register.createAccount',array('token' => $token))), 
 						'entered_data' => array('username' => $username),
 						'errormsgs' => array($e->message, $username, $password)), 'guest');
 		}
@@ -318,6 +321,7 @@ class RegisterController extends Controller {
 			} catch (Exception $e) {
 				return new TemplateResponse('registration', 'form',
 						array('email' => $email,
+							'link'  => $this->urlgenerator->getAbsoluteURL($this->urlgenerator->linkToRoute('registration.register.createAccount',array('token' => $token))), 
 							'entered_data' => array('username' => $username),
 							'errormsgs' => array($e->message, $username, $password)), 'guest');
 			}
@@ -357,6 +361,30 @@ class RegisterController extends Controller {
 		} elseif ( $email ) {
 			$username = $this->request->getParam('username');
 			$password = $this->request->getParam('password');
+			if ($this->usermanager->userExists($username)){
+				return new TemplateResponse('registration', 'message', array('msg' =>
+							$this->l10n->t('There is an existing user with this username')
+							), 'guest');
+
+			}
+			// only alphanumeric usernames are allowed
+			if (preg_match('/[^a-zA-Z0-9 _\.@\-\']/', $username)) {
+				return new TemplateResponse('registration', 'message', array('msg' =>
+							$this->l10n->t('Only the following characters are allowed in a username:'
+				. ' "a-z", "A-Z", "0-9", and "_.@-\'"')
+							), 'guest');
+			}
+			//länge überprüfen ->Wenn <8 ->exception
+			if (strlen($username) <1){
+				return new TemplateResponse('registration', 'message', array('msg' =>
+							$this->l10n->t('No username given. Please enter a username!')
+							), 'guest');
+			}
+			if(strlen($password)<8){
+				return new TemplateResponse('registration', 'message', array('msg' =>
+							$this->l10n->t('Password too short. Please enter a password of eight or more characters!')
+							), 'guest');
+			}
 			$needs_activation =  $this->config->getAppValue($this->appName, 'needs_activation','');
 			//Do we need an activation by an Administrator?
 			if ($needs_activation === 'checked'){

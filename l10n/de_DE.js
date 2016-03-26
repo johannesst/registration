@@ -3,8 +3,10 @@ OC.L10N.register(
     {
     "Register" : "Registrieren",
     "Email address you entered is not valid" : "Die eingegebene E-Mail-Adresse ist ungültig.",
+    "Only the following characters are allowed in a username: \"a-z\", \"A-Z\", \"0-9\", and \"_.@-'\"" : "Nur die follgenden Zeichen sind im Benutzernamen erlaubt: \"a-z\", \"A-Z\", \"0-9\", and \"_.@-'\"",
     "There is already a pending registration with this email" : "Es gibt bereits eine Registrierung für diese E-Mail-Adresse.",
     "There is an existing user with this email" : "Es existiert bereits ein Benutzer mit dieser E-Mail-Adresse",
+    "There is an existing user with this username" : "Es existiert bereits ein Benutzer mit diesen Benutzernamen",
     "Verify your ownCloud registration request" : "Bitte deine ownCloud-Registrierung bestätigen.",
     "Verification email successfully sent." : "E-Mail zur Bestätigung erfolgreich gesendet.",
     "Ban email successfully sent." : "E-Mail zum Ban erfolgreich gesendet.",

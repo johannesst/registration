@@ -41,6 +41,29 @@ foreach ( $_['accounts'] as $account ) {
 	}
 
 ?>
-</ul>
+</table>
+<br><br><br>
+<h3>LDAP Suchergebnisse </h3>
+<table  class="hascontrols grid">
+	<thead>
+		<tr>
+			<th id="headerName" scope="col"><?php p($l->t('Y-nr'))?></th>
+			<th id="mailAddress" scope="col"><?php p($l->t('Name'))?></th>
+			<th class="mailAddress" scope="col"><?php p($l->t( 'Email' )); ?></th>
+			<th class="mailAddress" scope="col"><?php p($l->t( 'Institut/Status' )); ?></th>
+			<th class="mailAddress" scope="col"></th>
+			<th class=="headerGroups" scope="col"></th>
+		</tr>
+	</thead>
+	<tbody>
+<?php	
+foreach ( $_['accounts'] as $account ) {
+    $data = file_get_contents("http://localhost:9003/?Email=".explode('@',$account['email'])[0],0);
+    echo $data;
+}
+?>
+</tbody>
+</table>
+
 
 </form>

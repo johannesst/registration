@@ -8,7 +8,7 @@ if ($_['entered']): ?>
 			</li>
 		</ul>
 	<?php else: ?>
-		<form action="<?php print_unescaped(OC_Helper::linkToRoute('registration.register.validateEmail')) ?>" method="post">
+		<form action="<?php print_unescaped($_['link']) ?>" method="post">
 			<fieldset>
 				<ul class="error">
 					<li><?php print_unescaped($_['errormsg']); ?></li>
@@ -23,7 +23,7 @@ if ($_['entered']): ?>
 		</form>
 	<?php endif; ?>
 <?php else: ?>
-	<form action="<?php print_unescaped(OC_Helper::linkToRoute('registration.register.validateEmail')) ?>" method="post">
+	<form action="<?php print_unescaped($_['link']); ?>" method="post">
 		<fieldset>
 			<?php if ($_['errormsg']): ?>
 				<ul class="error">

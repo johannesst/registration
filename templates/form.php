@@ -1,6 +1,6 @@
 <?php
 \OCP\Util::addStyle('registration', 'style');
-?><form action="<?php print_unescaped(OC_Helper::linkToRoute('registration.register.createAccount', array('token'=>$_['token']))) ?>" method="post">
+?><form action="<?php print_unescaped($_['link']) ?>" method="post">
 	<fieldset>
 		<?php if ( $_['errormsgs'] ) {?>
 		<ul class="error">
